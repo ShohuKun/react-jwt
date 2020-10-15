@@ -64,6 +64,7 @@ export default class Register extends Component {
     this.onChangeEmail = this.onChangeEmail.bind(this);
     this.onChangePassword = this.onChangePassword.bind(this);
     this.onChangeCPassword = this.onChangeCPassword.bind(this);
+    this.handleLogin = this.handleLogin.bind(this);
 
     this.state = {
       username: "",
@@ -104,7 +105,7 @@ export default class Register extends Component {
 
     this.setState({
       message: "",
-      successful: false
+      //loading: false
     });
 
     this.form.validateAll();
@@ -118,7 +119,7 @@ export default class Register extends Component {
         response => {
           this.setState({
             message: response.data.message,
-            successful: true
+            //loading: false
           });
         },
         error => {
@@ -130,12 +131,58 @@ export default class Register extends Component {
             error.toString();
 
           this.setState({
-            successful: false,
+            //loading: false,
             message: resMessage
           });
         }
       );
+
+
+    } else {
+      this.setState({
+        loading: false
+      });
     }
+  }
+  handleLogin(e) {
+    e.preventDefault();
+
+    this.setState({
+      message: "",
+      loading: true
+    });
+
+    if (this.checkBtn.context._errors.length === 0) {
+      AuthService.login(this.state.email, this.state.password).then(
+        () => {
+          this.props.history.push("/users");
+          window.location.reload();
+        },
+        error => {
+          const resMessage =
+            (error.response &&
+              error.response.data &&
+              error.response.data.message) ||
+            error.message ||
+            error.toString();
+
+          this.setState({
+            loading: false,
+            message: resMessage
+          });
+        }
+      );
+    } else {
+      this.setState({
+        loading: false
+      });
+    }
+  }
+
+  handleSubmit(e) {
+      this.handleRegister(e);
+      this.handleLogin();
+
   }
 
   render() {
@@ -149,68 +196,77 @@ export default class Register extends Component {
           />
 
           <Form
-            onSubmit={this.handleRegister}
+            onSubmit={(event) => { this.handleRegister(event)}}
             ref={c => {
               this.form = c;
             }}
           >
-            {!this.state.successful && (
-              <div>
-                <div className="form-group">
-                  <label htmlFor="username">Username</label>
-                  <Input
-                    type="text"
-                    className="form-control"
-                    name="username"
-                    value={this.state.username}
-                    onChange={this.onChangeUsername}
-                    validations={[required, vusername]}
-                  />
-                </div>
 
-                <div className="form-group">
-                  <label htmlFor="email">Email</label>
-                  <Input
-                    type="text"
-                    className="form-control"
-                    name="email"
-                    value={this.state.email}
-                    onChange={this.onChangeEmail}
-                    validations={[required, email]}
-                  />
-                </div>
-
-                <div className="form-group">
-                  <label htmlFor="password">Password</label>
-                  <Input
-                    type="password"
-                    className="form-control"
-                    name="password"
-                    value={this.state.password}
-                    onChange={this.onChangePassword}
-                    validations={[required, vpassword]}
-                  />
-                </div>
-                <div className="form-group">
-                  <label htmlFor="confirmpassword">Confirm Password</label>
-                  <Input
-                    type="password"
-                    className="form-control"
-                    name="confirm"
-                    value={this.state.confirmpassword}
-                    onChange={this.onChangeCPassword}
-                    validations={[required, password]}
-                  />
-                </div>
-
-
-                <div className="form-group">
-                  <button className="btn btn-primary btn-block">Sign Up</button>
-                </div>
+            <div>
+              <div className="form-group">
+                <label htmlFor="username">Username</label>
+                <Input
+                  type="text"
+                  className="form-control"
+                  name="username"
+                  value={this.state.username}
+                  onChange={this.onChangeUsername}
+                  validations={[required, vusername]}
+                />
               </div>
-            )}
 
-            {this.state.message && (
+              <div className="form-group">
+                <label htmlFor="email">Email</label>
+                <Input
+                  type="text"
+                  className="form-control"
+                  name="email"
+                  value={this.state.email}
+                  onChange={this.onChangeEmail}
+                  validations={[required, email]}
+                />
+              </div>
+
+              <div className="form-group">
+                <label htmlFor="password">Password</label>
+                <Input
+                  type="password"
+                  className="form-control"
+                  name="password"
+                  value={this.state.password}
+                  onChange={this.onChangePassword}
+                  validations={[required, vpassword]}
+                />
+              </div>
+              <div className="form-group">
+                <label htmlFor="confirmpassword">Confirm Password</label>
+                <Input
+                  type="password"
+                  className="form-control"
+                  name="confirm"
+                  value={this.state.confirmpassword}
+                  onChange={this.onChangeCPassword}
+                  validations={[required, password]}
+                />
+              </div>
+
+
+              <div className="form-group">
+                <button
+                  className="btn btn-primary btn-block"
+                  disabled={this.state.loading}
+                >
+                  {this.state.loading && (
+
+                    <span className="spinner-border spinner-border-sm"></span>
+                  )}
+                  <span>Sign Up</span>
+                </button>
+              </div>
+            </div>
+
+
+            {/*{this.state.message && (
               <div className="form-group">
                 <div
                   className={
@@ -223,7 +279,7 @@ export default class Register extends Component {
                   {this.state.message}
                 </div>
               </div>
-            )}
+                )}*/}
             <CheckButton
               style={{ display: "none" }}
               ref={c => {

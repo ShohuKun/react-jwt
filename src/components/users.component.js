@@ -1,6 +1,7 @@
 import React, { Component } from "react";
-
+import "bootstrap/dist/css/bootstrap.min.css";
 import UserService from "../services/user.service";
+import Card from "bootstrap/dist/css/bootstrap.min.css"
 
 export default class Users extends Component {
   constructor(props) {
@@ -20,13 +21,13 @@ export default class Users extends Component {
 
   retrieveUsers() {
     UserService.getUsers()
-    .then(response =>
-      this.setState({
-        users: response.data,
-        isLoading: false,
-      })
-    )
-    .catch(error => this.setState({ error, isLoading: false }));
+      .then(response =>
+        this.setState({
+          users: response.data,
+          isLoading: false,
+        })
+      )
+      .catch(error => this.setState({ error, isLoading: false }));
   }
 
   render() {
@@ -36,18 +37,27 @@ export default class Users extends Component {
         <h2>User List</h2>
         <div>
           {!isLoading ? (
-            
-            users.map((username, email) => {
+
+            users.map(user => {
               return (
-                  <p className="test" key={email}>
-                     {username} - {email}
-                  </p>
+                <React.Fragment>
+                  <div className="h3 mb-2 pt-2 font-weight-bold text-secondary">
+                    <div className="username" >
+                      {user.username} - {user.email}
+                  </div>
+                    <div className="email">
+                      
+                    </div>
+                  </div>
+                </React.Fragment>
+
               );
-          })
+            })
           ) : (
-            <p>Loading...</p>
-          )}
+              <p>Loading...</p>
+            )}
         </div>
+
       </React.Fragment>
     );
   }
